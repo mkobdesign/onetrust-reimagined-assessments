@@ -27,6 +27,7 @@ import {
   Paperclip,
   Menu,
   Check,
+  Lock,
 } from 'lucide-react'
 import {
   conversationSteps,
