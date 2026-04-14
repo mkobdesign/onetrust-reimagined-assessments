@@ -298,6 +298,14 @@ export default function AgentCanvas() {
               }, 2000)
             }
           }
+          // Step 4: Update assessment progress after human review answer
+          if (nextStep === 4 && msg.role === 'assistant' && (msg as any).assessmentProgress) {
+            // Highlight all assessments to show they've been updated
+            setHighlightedAssessments(['privacy', 'security', 'third-party', 'ai-risk'])
+            setTimeout(() => {
+              setHighlightedAssessments([])
+            }, 2000)
+          }
         }, delay)
         delay += 800
       })
@@ -732,20 +740,7 @@ export default function AgentCanvas() {
               <div ref={chatBottomRef} />
             </div>
 
-            {/* Confirm buttons for AI actions */}
-            {step === 4 && showRecords && (
-              <div className="px-5 py-2 border-t border-gray-100 space-y-1.5">
-                {['Add 2 third-parties: OpenAI, Glean', 'Add 1 Third-Party assessment: OpenAI'].map(action => (
-                  <div key={action} className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs">
-                    <span className="text-gray-700 font-medium">{action}</span>
-                    <div className="flex gap-1">
-                      <button className="p-1 text-gray-400 hover:text-red-500 transition-colors"><X className="w-3.5 h-3.5" /></button>
-                      <button className="p-1 text-gray-400 hover:text-primary transition-colors"><Check className="w-3.5 h-3.5" /></button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+
 
             {/* Input area */}
             <div className="px-5 py-4 border-t border-gray-100">
