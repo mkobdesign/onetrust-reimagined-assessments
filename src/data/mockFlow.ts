@@ -65,7 +65,7 @@ export const conversationSteps: ChatMessage[][] = [
     {
       id: 'u2',
       role: 'user',
-      content: "Here are the relevant documents.",
+      content: "Here are the relevant documents from OneDrive.",
       files: [
         { name: 'OpenAI_DPA_2024.pdf', type: 'pdf', size: '2.4 MB' },
         { name: 'Vendor_Security_Overview.pdf', type: 'pdf', size: '1.1 MB' },
@@ -78,68 +78,52 @@ export const conversationSteps: ChatMessage[][] = [
       id: 'a2',
       role: 'assistant',
       content:
-        "I've read your uploaded documents. Building governance records now…",
-      progress: { current: 2, total: 4, label: 'Creating governance records' },
+        "I've analyzed your documents and added them to the project. Based on my analysis, I've identified the following governance records:",
+      progress: { current: 2, total: 4, label: 'Analyzing documents' },
+      showDocuments: true,
     },
     {
       id: 'a3',
       role: 'assistant',
       content:
-        '**Will the AI outputs be shown to customers?** For example, will suggested replies be sent directly, or do agents review them first?',
+        "**Records identified:**\n\n• **AI Initiative:** Customer Support Copilot for Zendesk\n• **AI Agent:** Customer Support Response Assistant\n• **Models:** GPT-4o, Glean Retrieval\n• **Vendors:** OpenAI, Glean\n• **Systems:** Zendesk, Slack, Confluence\n• **Processing Activity:** Support Ticket Assistance\n• **Data Assets:** Customer Support Tickets, Account Metadata\n\nShall I create these records and generate the related assessments?",
+      showRecordsConfirmation: true,
     },
   ],
 
-  // Step 3: Customer-facing + human review
+  // Step 3: User confirms record creation
   [
     {
-      id: 'u4',
+      id: 'u3',
       role: 'user',
-      content: 'Agents review everything before sending. The AI just suggests — no direct sends.',
+      content: "Yes, create the records and assessments.",
     },
     {
       id: 'a4',
       role: 'assistant',
       content:
-        "That's important — I've marked human-in-the-loop as required. \n\n**Are there any regulatory requirements we should be aware of?** For example, GDPR, CCPA, or industry-specific rules?",
+        "I've created the governance records and I'm now generating your linked risk assessments:\n\n• **Privacy Impact Assessment** — analyzing personal data flows\n• **Security Risk Assessment** — reviewing access controls and encryption\n• **Third-Party Risk Assessment** — evaluating vendor compliance\n• **AI Risk Assessment** — assessing model risks and human oversight",
+      progress: { current: 3, total: 4, label: 'Creating governance records' },
+      showRecords: true,
     },
   ],
 
-  // Step 4: User answers regulatory requirements
+  // Step 4: Assessments created
   [
-    {
-      id: 'u5',
-      role: 'user',
-      content: "We operate in the EU and US, so GDPR and CCPA apply. We're also ISO 27001 certified.",
-    },
     {
       id: 'a5',
       role: 'assistant',
       content:
-        "Great, I've noted GDPR and CCPA compliance requirements.\n\nI have **2 quick questions about data retention** that will help me progress 3 assessments at once:\n\n**1. How long will conversation data be retained?**\n**2. Where will the data be stored geographically?**",
-      affectedAssessments: ['privacy', 'security', 'third-party'],
-    },
-  ],
-
-  // Step 5: Data retention answer + assessments generated
-  [
-    {
-      id: 'u6',
-      role: 'user',
-      content: 'We retain data for 90 days, stored in US-West and EU-Frankfurt regions.',
-    },
-    {
-      id: 'a6',
-      role: 'assistant',
-      content:
-        "Perfect — those answers just completed 3 questions across your Privacy, Security, and Third-Party assessments. I'm now generating your linked risk assessments.",
+        "I've created 4 assessments and pre-filled answers based on your documents. Here's what I found:\n\n• **Privacy Impact Assessment** — 72% complete (18/25 questions)\n• **Security Risk Assessment** — 60% complete (12/20 questions)\n• **Third-Party Risk Assessment** — 80% complete (16/20 questions)\n• **AI Risk Assessment** — 55% complete (11/20 questions)\n\nYou can review and complete these assessments in the panel on the right.",
       progress: { current: 4, total: 4, label: 'Generating assessments' },
-      completedAssessments: ['third-party'],
-      highlightAssessments: ['privacy', 'security', 'third-party'],
+      showAssessments: true,
+      highlightAssessments: ['privacy', 'security', 'third-party', 'ai-risk'],
       todoList: [
-        { id: 'todo1', label: 'Complete the Privacy Impact Assessment', status: 'pending' },
-        { id: 'todo2', label: 'Review AI Risk Assessment findings', status: 'pending' },
-        { id: 'todo3', label: 'Verify vendor security documentation', status: 'pending' },
-        { id: 'todo4', label: 'Submit for stakeholder approval', status: 'pending' },
+        { id: 'todo1', label: 'Review Privacy Impact Assessment', status: 'pending' },
+        { id: 'todo2', label: 'Complete Security Risk Assessment', status: 'pending' },
+        { id: 'todo3', label: 'Verify Third-Party Risk Assessment', status: 'pending' },
+        { id: 'todo4', label: 'Review AI Risk Assessment findings', status: 'pending' },
+        { id: 'todo5', label: 'Submit for stakeholder approval', status: 'pending' },
       ],
     },
   ],

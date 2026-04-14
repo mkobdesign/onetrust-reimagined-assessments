@@ -246,25 +246,26 @@ export default function AgentCanvas() {
               'This initiative deploys an AI-powered assistant to help support agents summarize tickets, draft customer replies, and search internal knowledge bases. Personal data including ticket content, customer identifiers, and account metadata will be processed by the system.'
             )
           }
-          if (nextStep === 4 && msg.role === 'assistant' && i === 0) {
+          // Step 2: Show documents in canvas after upload
+          if (nextStep === 2 && msg.role === 'assistant' && (msg as any).showDocuments) {
+            // Documents will be shown in canvas
+          }
+          // Step 3: Show records after user confirms
+          if (nextStep === 3 && msg.role === 'assistant' && (msg as any).showRecords) {
             setShowRecords(true)
             // Animate records one by one (limit to 4)
             for (let r = 0; r < 4; r++) {
               setTimeout(() => setVisibleRecords(r + 1), r * 200)
             }
           }
-                          if (nextStep === 4 && msg.role === 'assistant') {
-                            setShowAssessments(true)
-                          }
-                          // Step 5: Highlight and complete assessments after data retention answer
-                          if (nextStep === 5 && msg.role === 'assistant') {
-            // Trigger green highlight animation
-            setHighlightedAssessments(['privacy', 'security', 'third-party'])
-            // After animation, mark third-party as complete and fade it
+          // Step 4: Show assessments after creation
+          if (nextStep === 4 && msg.role === 'assistant' && (msg as any).showAssessments) {
+            setShowAssessments(true)
+            // Highlight all assessments
+            setHighlightedAssessments(['privacy', 'security', 'third-party', 'ai-risk'])
             setTimeout(() => {
               setHighlightedAssessments([])
-              setCompletedAssessments(['third-party'])
-            }, 1500)
+            }, 2000)
           }
         }, delay)
         delay += 800
