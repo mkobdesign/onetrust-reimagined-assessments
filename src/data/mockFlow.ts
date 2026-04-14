@@ -116,6 +116,34 @@ export const conversationSteps: ChatMessage[][] = [
         { id: 'todo5', label: 'Submit for stakeholder approval', status: 'pending' },
       ],
     },
+    {
+      id: 'a5',
+      role: 'assistant',
+      content:
+        "I've analyzed questions across all assessments and found a common question that applies to each. **Will support agents review AI-generated responses before sending replies to customers?** Your answer will help advance all 4 assessments at once.",
+      crossAssessmentQuestion: true,
+    },
+  ],
+
+  // Step 4: User confirms human review
+  [
+    {
+      id: 'u4',
+      role: 'user',
+      content: "Yes, agents will always review AI suggestions before sending any response to customers.",
+    },
+    {
+      id: 'a6',
+      role: 'assistant',
+      content:
+        "I've recorded that human review is required before customer communication. This answer has been applied across all assessments:",
+      assessmentProgress: [
+        { id: 'privacy', label: 'Privacy Impact Assessment', from: 72, to: 76, questions: '19/25' },
+        { id: 'security', label: 'Security Risk Assessment', from: 60, to: 65, questions: '13/20' },
+        { id: 'third-party', label: 'Third-Party Risk Assessment', from: 80, to: 85, questions: '17/20' },
+        { id: 'ai-risk', label: 'AI Risk Assessment', from: 55, to: 60, questions: '12/20' },
+      ],
+    },
   ],
 ]
 

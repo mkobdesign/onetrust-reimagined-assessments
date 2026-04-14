@@ -660,6 +660,25 @@ export default function AgentCanvas() {
                           </div>
                         )}
                         
+                        {/* Assessment progress update after cross-assessment answer */}
+                        {(msg as any).assessmentProgress && (
+                          <div className="mt-3 space-y-2">
+                            {(msg as any).assessmentProgress.map((assessment: { id: string; label: string; from: number; to: number; questions: string }) => (
+                              <div key={assessment.id} className="flex items-center gap-3 p-2.5 bg-green-50 border border-green-200 rounded-lg">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-gray-800">{assessment.label}</p>
+                                  <p className="text-[10px] text-gray-500">{assessment.questions} questions</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-gray-400">{assessment.from}%</span>
+                                  <ChevronRight className="w-3 h-3 text-green-500" />
+                                  <span className="text-xs font-semibold text-green-600">{assessment.to}%</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
                         {msg.todoList && (
                           <div className="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
                             <div className="space-y-2">
