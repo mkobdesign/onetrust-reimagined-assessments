@@ -55,51 +55,17 @@ export const conversationSteps: ChatMessage[][] = [
       id: 'a1',
       role: 'assistant',
       content:
-        "I've created your project and started mapping the governance requirements. I have a few questions to make sure I capture everything correctly.",
+        "I've created your project and started mapping the governance requirements. Please upload any supporting documents - DPA, vendor security overview, architecture diagram, sample prompts, or support policy SOP.",
       progress: { current: 1, total: 4, label: 'Analyzing your initiative' },
-    },
-    {
-      id: 'a2',
-      role: 'assistant',
-      content: '**Who will use this?** Is this for internal support agents only, or will customers interact with the AI directly?',
     },
   ],
 
-  // Step 2: After answering "Who will use this?"
+  // Step 2: Upload files
   [
     {
       id: 'u2',
       role: 'user',
-      content: 'Internal support agents only. About 150 people across three teams — Tier 1, Tier 2, and escalations.',
-    },
-    {
-      id: 'a3',
-      role: 'assistant',
-      content: 'Got it — internal-facing with ~150 users across support tiers. \n\n**What systems are involved?** Which tools do your agents currently use day-to-day?',
-    },
-  ],
-
-  // Step 3: After answering systems
-  [
-    {
-      id: 'u3',
-      role: 'user',
-      content: 'Zendesk is the main ticketing system. They also use Slack for internal communication and Confluence for the knowledge base.',
-    },
-    {
-      id: 'a4',
-      role: 'assistant',
-      content:
-        "Noted — Zendesk, Slack, and Confluence. \n\n**What data may be processed?** Based on what you described, I'm detecting customer names, support ticket content, and escalation notes. Does that cover it, or is there more?",
-    },
-  ],
-
-  // Step 4: Upload files + data question answered
-  [
-    {
-      id: 'u4',
-      role: 'user',
-      content: "That's right. Also account metadata like subscription tier and contract details.",
+      content: "Here are the relevant documents.",
       files: [
         { name: 'OpenAI_DPA_2024.pdf', type: 'pdf', size: '2.4 MB' },
         { name: 'Vendor_Security_Overview.pdf', type: 'pdf', size: '1.1 MB' },
@@ -109,44 +75,44 @@ export const conversationSteps: ChatMessage[][] = [
       ],
     },
     {
-      id: 'a5',
+      id: 'a2',
       role: 'assistant',
       content:
         "I've read your uploaded documents. Building governance records now…",
       progress: { current: 2, total: 4, label: 'Creating governance records' },
     },
     {
-      id: 'a6',
+      id: 'a3',
       role: 'assistant',
       content:
         '**Will the AI outputs be shown to customers?** For example, will suggested replies be sent directly, or do agents review them first?',
     },
   ],
 
-  // Step 5: Customer-facing + human review
+  // Step 3: Customer-facing + human review
   [
     {
-      id: 'u5',
+      id: 'u4',
       role: 'user',
       content: 'Agents review everything before sending. The AI just suggests — no direct sends.',
     },
     {
-      id: 'a7',
+      id: 'a4',
       role: 'assistant',
       content:
         "That's important — I've marked human-in-the-loop as required. \n\n**Are there any regulatory requirements we should be aware of?** For example, GDPR, CCPA, or industry-specific rules?",
     },
   ],
 
-  // Step 6: User answers regulatory requirements
+  // Step 4: User answers regulatory requirements
   [
     {
-      id: 'u6',
+      id: 'u5',
       role: 'user',
       content: "We operate in the EU and US, so GDPR and CCPA apply. We're also ISO 27001 certified.",
     },
     {
-      id: 'a8',
+      id: 'a5',
       role: 'assistant',
       content:
         "Great, I've noted GDPR and CCPA compliance requirements.\n\nI have **2 quick questions about data retention** that will help me progress 3 assessments at once:\n\n**1. How long will conversation data be retained?**\n**2. Where will the data be stored geographically?**",
@@ -154,15 +120,15 @@ export const conversationSteps: ChatMessage[][] = [
     },
   ],
 
-  // Step 7: Data retention answer + assessments generated
+  // Step 5: Data retention answer + assessments generated
   [
     {
-      id: 'u7',
+      id: 'u6',
       role: 'user',
       content: 'We retain data for 90 days, stored in US-West and EU-Frankfurt regions.',
     },
     {
-      id: 'a9',
+      id: 'a6',
       role: 'assistant',
       content:
         "Perfect — those answers just completed 3 questions across your Privacy, Security, and Third-Party assessments. I'm now generating your linked risk assessments.",

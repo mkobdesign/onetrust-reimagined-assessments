@@ -253,11 +253,11 @@ export default function AgentCanvas() {
               setTimeout(() => setVisibleRecords(r + 1), r * 200)
             }
           }
-                          if (nextStep === 6 && msg.role === 'assistant') {
+                          if (nextStep === 4 && msg.role === 'assistant') {
                             setShowAssessments(true)
                           }
-                          // Step 7: Highlight and complete assessments after data retention answer
-                          if (nextStep === 7 && msg.role === 'assistant') {
+                          // Step 5: Highlight and complete assessments after data retention answer
+                          if (nextStep === 5 && msg.role === 'assistant') {
             // Trigger green highlight animation
             setHighlightedAssessments(['privacy', 'security', 'third-party'])
             // After animation, mark third-party as complete and fade it
