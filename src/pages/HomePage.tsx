@@ -68,13 +68,24 @@ const cardData = [
 
 
 
+const defaultPrompt = "We want to deploy ChatGPT Enterprise for support agents to summarize tickets, suggest customer replies, and search Confluence articles. It may use ticket data, customer names, account metadata, and escalation notes."
+
 export default function HomePage() {
   const [prompt, setPrompt] = useState('')
   const [isFocused, setIsFocused] = useState(false)
+  const [hasClickedOnce, setHasClickedOnce] = useState(false)
   const navigate = useNavigate()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleSubmit = () => {
+    // First click: fill in the default prompt
+    if (!hasClickedOnce && !prompt.trim()) {
+      setPrompt(defaultPrompt)
+      setHasClickedOnce(true)
+      textareaRef.current?.focus()
+      return
+    }
+    // Second click (or if prompt already has content): navigate
     if (!prompt.trim()) return
     navigate('/canvas', { state: { initialPrompt: prompt } })
   }
@@ -147,7 +158,7 @@ export default function HomePage() {
 
                   <Button
                     onClick={handleSubmit}
-                    disabled={!prompt.trim()}
+                    disabled={hasClickedOnce && !prompt.trim()}
                     size="icon"
                     className="h-8 w-8 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                     aria-label="Send message"
