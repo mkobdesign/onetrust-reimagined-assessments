@@ -55,7 +55,7 @@ export const conversationSteps: ChatMessage[][] = [
       id: 'a1',
       role: 'assistant',
       content:
-        "I've created your project and started mapping the governance requirements. Please upload any supporting documents - DPA, vendor security overview, architecture diagram, sample prompts, or support policy SOP.",
+        "I've created your project and started mapping the governance requirements. **Please upload any supporting documents - DPA, vendor security overview, architecture diagram, sample prompts, or support policy SOP.**",
       progress: { current: 1, total: 4, label: 'Analyzing your initiative' },
     },
   ],
@@ -78,7 +78,7 @@ export const conversationSteps: ChatMessage[][] = [
       id: 'a2',
       role: 'assistant',
       content:
-        "I've analyzed your documents and added them to the project. Based on my analysis, I've identified the following governance records:",
+        "I've analyzed your documents and added them to the project. Based on my analysis, I've identified the following governance records. **Can you confirm this list is correct?**",
       progress: { current: 2, total: 4, label: 'Analyzing documents' },
       showDocuments: true,
     },
