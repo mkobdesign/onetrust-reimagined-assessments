@@ -161,9 +161,30 @@ export default function AgentCanvas() {
   const [progressLabel, setProgressLabel] = useState<string | null>(null)
   const [highlightedAssessments, setHighlightedAssessments] = useState<string[]>([])
   const [completedAssessments, setCompletedAssessments] = useState<string[]>([])
+  const [uploadedDocuments, setUploadedDocuments] = useState<Array<{ name: string; type: string; size: string }>>([])
+  const [showFilePicker, setShowFilePicker] = useState(false)
+  const [pendingFiles, setPendingFiles] = useState<Array<{ name: string; type: string; size: string; selected: boolean }>>([])
+  const [selectedRecords, setSelectedRecords] = useState<Record<string, boolean>>({
+    'ai-initiative': true,
+    'ai-agent': true,
+    'models': true,
+    'vendors': true,
+    'systems': true,
+    'processing': true,
+    'data-assets': true,
+  })
   const chatBottomRef = useRef<HTMLDivElement>(null)
   const recordsRef = useRef<HTMLDivElement>(null)
   const assessmentsRef = useRef<HTMLDivElement>(null)
+  
+  // Available files from OneDrive
+  const oneDriveFiles = [
+    { name: 'OpenAI_DPA_2024.pdf', type: 'pdf', size: '2.4 MB' },
+    { name: 'Vendor_Security_Overview.pdf', type: 'pdf', size: '1.1 MB' },
+    { name: 'Architecture_Diagram.png', type: 'image', size: '840 KB' },
+    { name: 'Sample_Prompts.docx', type: 'doc', size: '156 KB' },
+    { name: 'Support_SOP.pdf', type: 'pdf', size: '3.2 MB' },
+  ]
 
   // Bootstrap with initial prompt
   useEffect(() => {
@@ -248,7 +269,16 @@ export default function AgentCanvas() {
           }
           // Step 2: Show documents in canvas after upload
           if (nextStep === 2 && msg.role === 'assistant' && (msg as any).showDocuments) {
-            // Documents will be shown in canvas
+            // Add uploaded documents to canvas if not already there
+            if (uploadedDocuments.length > 0) {
+              // Documents already uploaded via file picker
+            } else {
+              // Use the files from the message
+              const userMsg = conversationSteps[nextStep]?.find((m: ChatMessage) => m.files && m.files.length > 0)
+              if (userMsg?.files) {
+                setUploadedDocuments(userMsg.files.map(f => ({ name: f.name, type: f.type, size: f.size })))
+              }
+            }
           }
           // Step 3: Show records after user confirms
           if (nextStep === 3 && msg.role === 'assistant' && (msg as any).showRecords) {
@@ -313,7 +343,7 @@ export default function AgentCanvas() {
 
             {/* Documents row */}
             <AnimatePresence>
-              {projectTitle && step >= 2 && (
+              {projectTitle && (step >= 2 || uploadedDocuments.length > 0) && (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -322,20 +352,16 @@ export default function AgentCanvas() {
                 >
                   <p className="text-xs font-semibold text-gray-500 mb-2">Documents</p>
                   <div className="flex items-center gap-2 flex-wrap">
-                    {step >= 4 && (
-                      <>
-                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-700 font-medium">
-                          <FileText className="w-3.5 h-3.5 text-red-500" />
-                          OpenAI_DPA_2024.pdf
-                        </div>
-                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-700 font-medium">
-                          <FileText className="w-3.5 h-3.5 text-red-500" />
-                          Vendor_Security_Overview.pdf
-                        </div>
-                        <button className="flex items-center justify-center w-8 h-8 bg-white border border-dashed border-gray-300 rounded-lg text-gray-400 hover:border-gray-400 hover:text-gray-600 transition-colors text-sm">
-                          +
-                        </button>
-                      </>
+                    {uploadedDocuments.map(doc => (
+                      <div key={doc.name} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-700 font-medium">
+                        <FileText className={`w-3.5 h-3.5 ${doc.type === 'pdf' ? 'text-red-500' : doc.type === 'image' ? 'text-blue-500' : 'text-blue-600'}`} />
+                        {doc.name}
+                      </div>
+                    ))}
+                    {uploadedDocuments.length > 0 && (
+                      <button className="flex items-center justify-center w-8 h-8 bg-white border border-dashed border-gray-300 rounded-lg text-gray-400 hover:border-gray-400 hover:text-gray-600 transition-colors text-sm">
+                        +
+                      </button>
                     )}
                   </div>
                 </motion.div>
@@ -541,10 +567,67 @@ export default function AgentCanvas() {
                       </div>
                       <div>
                         <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-                          {msg.content.split('**').map((part, i) =>
-                            i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+                          {(msg as any).showRecordsConfirmation ? (
+                            // Split at "Records identified:" and render the intro separately
+                            msg.content.split('**Records identified:**')[0].split('**').map((part: string, i: number) =>
+                              i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+                            )
+                          ) : (
+                            msg.content.split('**').map((part, i) =>
+                              i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+                            )
                           )}
                         </div>
+                        
+                        {/* Records confirmation checklist */}
+                        {(msg as any).showRecordsConfirmation && (
+                          <div className="mt-3 bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                            <div className="px-3 py-2 border-b border-gray-200 bg-white">
+                              <p className="text-xs font-semibold text-gray-700">Records identified</p>
+                            </div>
+                            <div className="divide-y divide-gray-100">
+                              {[
+                                { id: 'ai-initiative', icon: 'zap', label: 'AI Initiative', value: 'Customer Support Copilot for Zendesk' },
+                                { id: 'ai-agent', icon: 'bot', label: 'AI Agent', value: 'Customer Support Response Assistant' },
+                                { id: 'models', icon: 'cpu', label: 'Models', value: 'GPT-4o, Glean Retrieval' },
+                                { id: 'vendors', icon: 'building2', label: 'Vendors', value: 'OpenAI, Glean' },
+                                { id: 'systems', icon: 'layers', label: 'Systems', value: 'Zendesk, Slack, Confluence' },
+                                { id: 'processing', icon: 'database', label: 'Processing Activity', value: 'Support Ticket Assistance' },
+                                { id: 'data-assets', icon: 'shield', label: 'Data Assets', value: 'Customer Support Tickets, Account Metadata' },
+                              ].map(record => {
+                                const Icon = iconMap[record.icon] || Database
+                                const isSelected = selectedRecords[record.id]
+                                return (
+                                  <div key={record.id} className="flex items-center gap-2.5 px-3 py-2 hover:bg-white transition-colors">
+                                    <button
+                                      onClick={() => setSelectedRecords(prev => ({ ...prev, [record.id]: !prev[record.id] }))}
+                                      className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${isSelected ? 'bg-primary border-primary' : 'border-gray-300 bg-white'}`}
+                                    >
+                                      {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                                    </button>
+                                    <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                      <Icon className="w-3 h-3 text-primary" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">{record.label}</span>
+                                      <p className="text-xs font-medium text-gray-800 truncate">{record.value}</p>
+                                    </div>
+                                    <button
+                                      onClick={() => setSelectedRecords(prev => ({ ...prev, [record.id]: false }))}
+                                      className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                            <div className="px-3 py-2 border-t border-gray-200 bg-white text-right">
+                              <span className="text-[10px] text-gray-400">{Object.values(selectedRecords).filter(Boolean).length} records selected</span>
+                            </div>
+                          </div>
+                        )}
+                        
                         {msg.todoList && (
                           <div className="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
                             <div className="space-y-2">
@@ -630,10 +713,83 @@ export default function AgentCanvas() {
                   rows={2}
                   className="w-full resize-none bg-transparent px-4 pt-3 pb-1 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed"
                 />
-                <div className="flex items-center justify-between px-3 pb-2">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400" aria-label="Attach">
-                    <Paperclip className="w-3.5 h-3.5" />
-                  </Button>
+                <div className="flex items-center justify-between px-3 pb-2 relative">
+                  <div className="relative">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-7 w-7 text-gray-400" 
+                      aria-label="Attach"
+                      onClick={() => {
+                        setPendingFiles(oneDriveFiles.map(f => ({ ...f, selected: false })))
+                        setShowFilePicker(!showFilePicker)
+                      }}
+                    >
+                      <Paperclip className="w-3.5 h-3.5" />
+                    </Button>
+                    
+                    {/* File picker dropdown */}
+                    <AnimatePresence>
+                      {showFilePicker && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute bottom-full left-0 mb-2 w-72 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50"
+                        >
+                          <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
+                            <span className="text-xs font-semibold text-gray-700">Select from OneDrive</span>
+                            <button onClick={() => setShowFilePicker(false)} className="text-gray-400 hover:text-gray-600">
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <div className="max-h-48 overflow-y-auto">
+                            {pendingFiles.map((file, idx) => (
+                              <button
+                                key={file.name}
+                                onClick={() => {
+                                  setPendingFiles(prev => prev.map((f, i) => i === idx ? { ...f, selected: !f.selected } : f))
+                                }}
+                                className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-gray-50 transition-colors ${file.selected ? 'bg-primary/5' : ''}`}
+                              >
+                                <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${file.selected ? 'bg-primary border-primary' : 'border-gray-300'}`}>
+                                  {file.selected && <Check className="w-2.5 h-2.5 text-white" />}
+                                </div>
+                                <FileText className={`w-3.5 h-3.5 flex-shrink-0 ${file.type === 'pdf' ? 'text-red-500' : file.type === 'image' ? 'text-blue-500' : 'text-blue-600'}`} />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-xs font-medium text-gray-800 truncate">{file.name}</p>
+                                  <p className="text-[10px] text-gray-400">{file.size}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                          <div className="px-3 py-2 border-t border-gray-100 flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={() => setShowFilePicker(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="h-7 text-xs"
+                              disabled={!pendingFiles.some(f => f.selected)}
+                              onClick={() => {
+                                const selected = pendingFiles.filter(f => f.selected).map(({ name, type, size }) => ({ name, type, size }))
+                                setUploadedDocuments(prev => [...prev, ...selected])
+                                setShowFilePicker(false)
+                              }}
+                            >
+                              Attach ({pendingFiles.filter(f => f.selected).length})
+                            </Button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                   <Button
                     onClick={handleSend}
                     disabled={!inputValue.trim() && step >= conversationSteps.length - 1}
