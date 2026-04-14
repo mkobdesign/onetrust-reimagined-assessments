@@ -280,22 +280,22 @@ export default function AgentCanvas() {
               }
             }
           }
-          // Step 3: Show records after user confirms
+          // Step 3: Show records and assessments after user confirms
           if (nextStep === 3 && msg.role === 'assistant' && (msg as any).showRecords) {
             setShowRecords(true)
             // Animate records one by one (limit to 4)
             for (let r = 0; r < 4; r++) {
               setTimeout(() => setVisibleRecords(r + 1), r * 200)
             }
-          }
-          // Step 4: Show assessments after creation
-          if (nextStep === 4 && msg.role === 'assistant' && (msg as any).showAssessments) {
-            setShowAssessments(true)
-            // Highlight all assessments
-            setHighlightedAssessments(['privacy', 'security', 'third-party', 'ai-risk'])
-            setTimeout(() => {
-              setHighlightedAssessments([])
-            }, 2000)
+            // Also show assessments immediately
+            if ((msg as any).showAssessments) {
+              setShowAssessments(true)
+              // Highlight all assessments
+              setHighlightedAssessments(['privacy', 'security', 'third-party', 'ai-risk'])
+              setTimeout(() => {
+                setHighlightedAssessments([])
+              }, 2000)
+            }
           }
         }, delay)
         delay += 800
@@ -578,6 +578,37 @@ export default function AgentCanvas() {
                             )
                           )}
                         </div>
+                        
+                        {/* Assessments list with progress */}
+                        {(msg as any).showAssessmentsList && (
+                          <div className="mt-3 space-y-2">
+                            {[
+                              { id: 'privacy', icon: Shield, label: 'Privacy Impact Assessment', percent: 72, questions: '18/25 questions', color: 'text-purple-600', bg: 'bg-purple-100' },
+                              { id: 'security', icon: Lock, label: 'Security Risk Assessment', percent: 60, questions: '12/20 questions', color: 'text-blue-600', bg: 'bg-blue-100' },
+                              { id: 'third-party', icon: Building2, label: 'Third-Party Risk Assessment', percent: 80, questions: '16/20 questions', color: 'text-orange-600', bg: 'bg-orange-100' },
+                              { id: 'ai-risk', icon: Cpu, label: 'AI Risk Assessment', percent: 55, questions: '11/20 questions', color: 'text-green-600', bg: 'bg-green-100' },
+                            ].map(assessment => (
+                              <div key={assessment.id} className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl">
+                                <div className={`w-8 h-8 rounded-lg ${assessment.bg} flex items-center justify-center flex-shrink-0`}>
+                                  <assessment.icon className={`w-4 h-4 ${assessment.color}`} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-semibold text-gray-800">{assessment.label}</p>
+                                  <p className="text-[10px] text-gray-500">{assessment.questions}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                    <div 
+                                      className={`h-full rounded-full ${assessment.percent >= 75 ? 'bg-green-500' : assessment.percent >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                      style={{ width: `${assessment.percent}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-xs font-semibold text-gray-700 w-8">{assessment.percent}%</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                         
                         {/* Records confirmation checklist */}
                         {(msg as any).showRecordsConfirmation && (

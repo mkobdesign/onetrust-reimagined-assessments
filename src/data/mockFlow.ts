@@ -102,21 +102,11 @@ export const conversationSteps: ChatMessage[][] = [
       id: 'a4',
       role: 'assistant',
       content:
-        "I've created the governance records and I'm now generating your linked risk assessments:\n\n• **Privacy Impact Assessment** — analyzing personal data flows\n• **Security Risk Assessment** — reviewing access controls and encryption\n• **Third-Party Risk Assessment** — evaluating vendor compliance\n• **AI Risk Assessment** — assessing model risks and human oversight",
-      progress: { current: 3, total: 4, label: 'Creating governance records' },
+        "I've created the governance records and generated your linked risk assessments with pre-filled answers based on your documents:",
+      progress: { current: 4, total: 4, label: 'Creating governance records' },
       showRecords: true,
-    },
-  ],
-
-  // Step 4: Assessments created
-  [
-    {
-      id: 'a5',
-      role: 'assistant',
-      content:
-        "I've created 4 assessments and pre-filled answers based on your documents. Here's what I found:\n\n• **Privacy Impact Assessment** — 72% complete (18/25 questions)\n• **Security Risk Assessment** — 60% complete (12/20 questions)\n• **Third-Party Risk Assessment** — 80% complete (16/20 questions)\n• **AI Risk Assessment** — 55% complete (11/20 questions)\n\nYou can review and complete these assessments in the panel on the right.",
-      progress: { current: 4, total: 4, label: 'Generating assessments' },
       showAssessments: true,
+      showAssessmentsList: true,
       highlightAssessments: ['privacy', 'security', 'third-party', 'ai-risk'],
       todoList: [
         { id: 'todo1', label: 'Review Privacy Impact Assessment', status: 'pending' },
