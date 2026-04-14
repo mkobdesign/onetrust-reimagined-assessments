@@ -81,15 +81,19 @@ function AssessmentCardItem({
   delay,
   isHighlighted,
   isCompleted,
+  dynamicProgress,
 }: {
   card: AssessmentCard
   onClick: () => void
   delay: number
   isHighlighted?: boolean
   isCompleted?: boolean
+  dynamicProgress?: { percent: number; questions: string }
 }) {
   const risk = riskColors[card.riskLevel]
   const typeLabel = card.type === 'privacy' ? 'Privacy' : card.type === 'security' ? 'Security' : card.type === 'third-party' ? 'Third-Party Risk' : 'AI Risk'
+  const progress = dynamicProgress?.percent ?? card.progress
+  const questionsDisplay = dynamicProgress?.questions ?? `${card.questionsAnswered}/${card.totalQuestions}`
 
   return (
     <motion.div
@@ -114,7 +118,7 @@ function AssessmentCardItem({
         <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-primary transition-colors mt-1 flex-shrink-0" />
       </div>
 
-      <Progress value={isCompleted ? 100 : card.progress} className={`mt-3 mb-2 transition-all duration-500 ${isCompleted ? '[&>div]:bg-green-500' : ''}`} />
+      <Progress value={isCompleted ? 100 : progress} className={`mt-3 mb-2 transition-all duration-500 ${isCompleted ? '[&>div]:bg-green-500' : ''}`} />
 
       <div className="flex items-center justify-between mt-2">
         <div className="flex items-center gap-1.5">
@@ -132,9 +136,9 @@ function AssessmentCardItem({
             {card.ownerInitials}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-gray-500">
-            <span>{isCompleted ? 100 : card.progress}%</span>
+            <span>{isCompleted ? 100 : progress}%</span>
             <span className="text-gray-300">|</span>
-            <span className="text-primary font-medium">{card.questionsAnswered}/{card.totalQuestions} from docs</span>
+            <span className="text-primary font-medium">{questionsDisplay} from docs</span>
           </div>
         </div>
       </div>
@@ -162,6 +166,12 @@ export default function AgentCanvas() {
   const [progressLabel, setProgressLabel] = useState<string | null>(null)
   const [highlightedAssessments, setHighlightedAssessments] = useState<string[]>([])
   const [completedAssessments, setCompletedAssessments] = useState<string[]>([])
+  const [assessmentProgress, setAssessmentProgress] = useState<Record<string, { percent: number; questions: string }>>({
+    'privacy': { percent: 72, questions: '18/25' },
+    'security': { percent: 60, questions: '12/20' },
+    'third-party': { percent: 80, questions: '16/20' },
+    'ai-risk': { percent: 55, questions: '11/20' },
+  })
   const [uploadedDocuments, setUploadedDocuments] = useState<Array<{ name: string; type: string; size: string }>>([])
   const [showFilePicker, setShowFilePicker] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<Array<{ name: string; type: string; size: string; selected: boolean }>>([])
@@ -300,6 +310,13 @@ export default function AgentCanvas() {
           }
           // Step 4: Update assessment progress after human review answer
           if (nextStep === 4 && msg.role === 'assistant' && (msg as any).assessmentProgress) {
+            // Update assessment percentages to new values
+            setAssessmentProgress({
+              'privacy': { percent: 76, questions: '19/25' },
+              'security': { percent: 65, questions: '13/20' },
+              'third-party': { percent: 85, questions: '17/20' },
+              'ai-risk': { percent: 60, questions: '12/20' },
+            })
             // Highlight all assessments to show they've been updated
             setHighlightedAssessments(['privacy', 'security', 'third-party', 'ai-risk'])
             setTimeout(() => {
@@ -436,14 +453,15 @@ export default function AgentCanvas() {
 
                   <div className="grid grid-cols-1 gap-3">
                     {assessmentCards.map((card, i) => (
-<AssessmentCardItem
-  key={card.id}
-  card={card}
-  delay={i * 0.1}
-  onClick={() => navigate('/prelaunch', { state: { assessment: card } })}
-  isHighlighted={highlightedAssessments.includes(card.id)}
-  isCompleted={completedAssessments.includes(card.id)}
-  />
+                      <AssessmentCardItem
+                        key={card.id}
+                        card={card}
+                        delay={i * 0.1}
+                        onClick={() => navigate('/prelaunch', { state: { assessment: card } })}
+                        isHighlighted={highlightedAssessments.includes(card.id)}
+                        isCompleted={completedAssessments.includes(card.id)}
+                        dynamicProgress={assessmentProgress[card.id]}
+                      />
                     ))}
                   </div>
                 </motion.div>
