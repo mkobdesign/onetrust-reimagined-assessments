@@ -144,6 +144,12 @@ export const conversationSteps: ChatMessage[][] = [
         { id: 'ai-risk', label: 'AI Risk Assessment', from: 55, to: 60, questions: '12/20' },
       ],
     },
+    {
+      id: 'a7',
+      role: 'assistant',
+      content:
+        "Thanks so much, now click into the assessment to complete the remaining questions.",
+    },
   ],
 ]
 
