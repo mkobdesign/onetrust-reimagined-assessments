@@ -7,6 +7,7 @@ import AssessmentQuestionnaire from '@/pages/AssessmentQuestionnaire'
 import SuccessScreen from '@/pages/SuccessScreen'
 
 export default function App() {
+  console.log('[v0] App rendering')
   return (
     <BrowserRouter>
       <AnimatePresence mode="wait">
